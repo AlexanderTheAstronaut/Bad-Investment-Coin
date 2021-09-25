@@ -2,8 +2,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_WALLETINITINTERFACE_H
-#define BITCOIN_WALLETINITINTERFACE_H
+#ifndef BADINVESTMENTCOIN_WALLETINITINTERFACE_H
+#define BADINVESTMENTCOIN_WALLETINITINTERFACE_H
 
 #include <string>
 
@@ -34,4 +34,4 @@ public:
     virtual ~WalletInitInterface() {}
 };
 
-#endif // BITCOIN_WALLETINITINTERFACE_H
+#endif // BADINVESTMENTCOIN_WALLETINITINTERFACE_H

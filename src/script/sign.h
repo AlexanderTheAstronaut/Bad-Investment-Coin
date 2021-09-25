@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_SCRIPT_SIGN_H
-#define BITCOIN_SCRIPT_SIGN_H
+#ifndef BADINVESTMENTCOIN_SCRIPT_SIGN_H
+#define BADINVESTMENTCOIN_SCRIPT_SIGN_H
 
 #include <boost/optional.hpp>
 #include <hash.h>
@@ -699,4 +699,4 @@ void UpdateInput(CTxIn& input, const SignatureData& data);
  * Solvability is unrelated to whether we consider this output to be ours. */
 bool IsSolvable(const SigningProvider& provider, const CScript& script);
 
-#endif // BITCOIN_SCRIPT_SIGN_H
+#endif // BADINVESTMENTCOIN_SCRIPT_SIGN_H

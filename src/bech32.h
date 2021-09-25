@@ -9,8 +9,8 @@
 //
 // For more information, see BIP 173.
 
-#ifndef BITCOIN_BECH32_H
-#define BITCOIN_BECH32_H
+#ifndef BADINVESTMENTCOIN_BECH32_H
+#define BADINVESTMENTCOIN_BECH32_H
 
 #include <stdint.h>
 #include <string>
@@ -27,4 +27,4 @@ std::pair<std::string, std::vector<uint8_t>> Decode(const std::string& str);
 
 } // namespace bech32
 
-#endif // BITCOIN_BECH32_H
+#endif // BADINVESTMENTCOIN_BECH32_H

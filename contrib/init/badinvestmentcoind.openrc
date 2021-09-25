@@ -1,0 +1,92 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/badinvestmentcoin/.badinvestmentcoin" ]; then
+	BADINVESTMENTCOIND_DEFAULT_DATADIR="/var/lib/badinvestmentcoin/.badinvestmentcoin"
+else
+	BADINVESTMENTCOIND_DEFAULT_DATADIR="/var/lib/badinvestmentcoind"
+fi
+
+BADINVESTMENTCOIND_CONFIGFILE=${BADINVESTMENTCOIND_CONFIGFILE:-/etc/badinvestmentcoin/badinvestmentcoin.conf}
+BADINVESTMENTCOIND_PIDDIR=${BADINVESTMENTCOIND_PIDDIR:-/var/run/badinvestmentcoind}
+BADINVESTMENTCOIND_PIDFILE=${BADINVESTMENTCOIND_PIDFILE:-${BADINVESTMENTCOIND_PIDDIR}/badinvestmentcoind.pid}
+BADINVESTMENTCOIND_DATADIR=${BADINVESTMENTCOIND_DATADIR:-${BADINVESTMENTCOIND_DEFAULT_DATADIR}}
+BADINVESTMENTCOIND_USER=${BADINVESTMENTCOIND_USER:-${BADINVESTMENTCOIN_USER:-badinvestmentcoin}}
+BADINVESTMENTCOIND_GROUP=${BADINVESTMENTCOIND_GROUP:-badinvestmentcoin}
+BADINVESTMENTCOIND_BIN=${BADINVESTMENTCOIND_BIN:-/usr/bin/badinvestmentcoind}
+BADINVESTMENTCOIND_NICE=${BADINVESTMENTCOIND_NICE:-${NICELEVEL:-0}}
+BADINVESTMENTCOIND_OPTS="${BADINVESTMENTCOIND_OPTS:-${BADINVESTMENTCOIN_OPTS}}"
+
+name="Badinvestmentcoin Core Daemon"
+description="Badinvestmentcoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/badinvestmentcoind"
+command_args="-pid=\"${BADINVESTMENTCOIND_PIDFILE}\" \
+		-conf=\"${BADINVESTMENTCOIND_CONFIGFILE}\" \
+		-datadir=\"${BADINVESTMENTCOIND_DATADIR}\" \
+		-daemon \
+		${BADINVESTMENTCOIND_OPTS}"
+
+required_files="${BADINVESTMENTCOIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${BADINVESTMENTCOIND_USER} \
+			-N ${BADINVESTMENTCOIND_NICE} -w 2000"
+pidfile="${BADINVESTMENTCOIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${BADINVESTMENTCOIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${BADINVESTMENTCOIND_USER}:${BADINVESTMENTCOIND_GROUP}" \
+	"${BADINVESTMENTCOIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${BADINVESTMENTCOIND_USER}:${BADINVESTMENTCOIND_GROUP}" \
+	"${BADINVESTMENTCOIND_PIDDIR}"
+
+	checkpath -f \
+	-o ${BADINVESTMENTCOIND_USER}:${BADINVESTMENTCOIND_GROUP} \
+	-m 0660 \
+	${BADINVESTMENTCOIND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${BADINVESTMENTCOIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run badinvestmentcoind."
+		eerror "The setting must appear in ${BADINVESTMENTCOIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Badinvestmentcoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}

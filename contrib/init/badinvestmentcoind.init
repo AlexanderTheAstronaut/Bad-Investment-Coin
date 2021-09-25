@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+#
+#  badinvestmentcoind The badinvestmentcoin core server.
+#
+#
+# chkconfig: 345 80 20
+# description: badinvestmentcoind
+# processname: badinvestmentcoind
+#
+
+# Source function library.
+. /etc/init.d/functions
+
+# you can override defaults in /etc/sysconfig/badinvestmentcoind, see below
+if [ -f /etc/sysconfig/badinvestmentcoind ]; then
+        . /etc/sysconfig/badinvestmentcoind
+fi
+
+RETVAL=0
+
+prog=badinvestmentcoind
+# you can override the lockfile via BADINVESTMENTCOIND_LOCKFILE in /etc/sysconfig/badinvestmentcoind
+lockfile=${BADINVESTMENTCOIND_LOCKFILE-/var/lock/subsys/badinvestmentcoind}
+
+# badinvestmentcoind defaults to /usr/bin/badinvestmentcoind, override with BADINVESTMENTCOIND_BIN
+badinvestmentcoind=${BADINVESTMENTCOIND_BIN-/usr/bin/badinvestmentcoind}
+
+# badinvestmentcoind opts default to -disablewallet, override with BADINVESTMENTCOIND_OPTS
+badinvestmentcoind_opts=${BADINVESTMENTCOIND_OPTS--disablewallet}
+
+start() {
+    echo -n $"Starting $prog: "
+    daemon $DAEMONOPTS $badinvestmentcoind $badinvestmentcoind_opts
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && touch $lockfile
+    return $RETVAL
+}
+
+stop() {
+    echo -n $"Stopping $prog: "
+    killproc $prog
+    RETVAL=$?
+    echo
+    [ $RETVAL -eq 0 ] && rm -f $lockfile
+    return $RETVAL
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    status)
+        status $prog
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: service $prog {start|stop|status|restart}"
+        exit 1
+        ;;
+esac
